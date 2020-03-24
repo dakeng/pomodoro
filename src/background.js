@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, Menu } from "electron";
+import { app, protocol, BrowserWindow, Menu, ipcMain } from "electron";
 import {
   createProtocol,
   installVueDevtools
@@ -22,6 +22,7 @@ function createWindow() {
     width: 1260,
     height: 840,
     backgroundColor: '#2f5573',
+    frame: false,
     webPreferences: {
       nodeIntegration: true
     }
@@ -94,3 +95,23 @@ if (isDevelopment) {
     });
   }
 }
+
+// 相应标题栏操作
+ipcMain.on('toolEvent', (event, msg) => {
+  // console.log(msg);
+  switch(msg) {
+    case 'minimize':
+      win.minimize();
+      break;
+    case 'maximize':
+      if (win.isMaximized()) {
+        win.unmaximize();
+      } else {
+        win.maximize();
+      }
+      break;
+    case 'close':
+      win.close();
+      break;
+  }
+});
