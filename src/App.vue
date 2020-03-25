@@ -4,9 +4,9 @@
       <div class="title-bar-container">
         <div class="title-bar-name">Pomodoro</div>
         <div class="title-bar-tool">
-          <i class="iconfont icon-min" v-on:click="toolEvent('minimize')"></i>
-          <i class="iconfont icon-max" v-on:click="toolEvent('maximize')"></i>
-          <i class="iconfont icon-close" v-on:click="toolEvent('close')"></i>
+          <i class="iconfont icon-min" v-on:click="onToolEvent('minimize')"></i>
+          <i class="iconfont icon-max" v-on:click="onToolEvent('maximize')"></i>
+          <i class="iconfont icon-close" v-on:click="onToolEvent('close')"></i>
         </div>
       </div>
     </div>
@@ -18,19 +18,17 @@
           <span>User</span>
         </div>
         <div class="task-container">
-          <div class="item-container task-list-title">
+          <div class="item-container task-list-title"
+            v-on:click="onTaskActivate('today')"
+            :class="{activate: curTaskTitle=='today'}"
+          >
             <i class="iconfont icon-star"></i>
-            <span>今天</span>
-            <span></span>
-          </div>
-          <div class="item-container task-list-title">
-            <i class="iconfont icon-menu"></i>
-            <span>明天</span>
+            <span>任务</span>
             <span></span>
           </div>
           <div class="item-container task-list-title">
             <i class="iconfont icon-calendar"></i>
-            <span>日历</span>
+            <span>日程</span>
             <span></span>
           </div>
           <i class="line"></i>
@@ -42,7 +40,13 @@
         </div>
       </div>
       <div class="main-container">
-      
+        <div class="task-title">
+          <i class="iconfont icon-star"></i>
+          <span>任务</span>
+        </div>
+        <div class="task-timer">
+
+        </div>
       </div>
     </div>
   </div>
@@ -52,10 +56,20 @@
 const { ipcRenderer } = require('electron');
 
 export default {
+  data() {
+    return {
+      curTaskTitle: '',
+    }
+  },
+
   methods: {
-    toolEvent(msg) {
+    onToolEvent(msg) {
       ipcRenderer.send('toolEvent', msg);
     },
+    onTaskActivate(title) {
+      console.log(title);
+      this.curTaskTitle = title;
+    }
   }
 }
 </script>
@@ -135,11 +149,12 @@ body {
 
   .side-container {
     flex: 0 0 320px;
+    background: #323232;
   }
 
   .main-container {
     flex: 1 1 auto;
-    background: #26445c;
+    background: #222;
   }
 }
 
@@ -164,6 +179,20 @@ body {
     &:hover {
       background: rgba($color: #fff, $alpha: .1);
     }
+
+    &.activate {
+      color: #e85038;
+      font-weight: bold;
+      background: rgba($color: #000, $alpha: .1);
+
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        margin: 8px 0 8px -2px;
+        background: #e85038;
+      }
+    }
   }
 
   .line {
@@ -172,9 +201,19 @@ body {
     height: 1px;
     background: rgba($color: #fff, $alpha: .2);
   }
+}
 
-  .task-list-title {
+.main-container {
+  padding: 0 24px;
 
+  .task-title {
+    color: #fff;
+    font-size: 28px;
+
+    .iconfont {
+      font-size: 24px;
+      padding: 0 12px;
+    }
   }
 }
 </style>
