@@ -45,7 +45,39 @@
           <span>任务</span>
         </div>
         <div class="task-timer">
-
+          <div class="task-timer-item">
+            <div class="task-timer-count">0</div>
+            <div class="task-timer-type">已用时（h）</div>
+          </div>
+          <div class="task-timer-item">
+            <div class="task-timer-count">0</div>
+            <div class="task-timer-type">已用时（h）</div>
+          </div>
+          <div class="task-timer-item">
+            <div class="task-timer-count">0</div>
+            <div class="task-timer-type">已用时（h）</div>
+          </div>
+          <div class="task-timer-item">
+            <div class="task-timer-count">0</div>
+            <div class="task-timer-type">已用时（h）</div>
+          </div>
+        </div>
+        <div class="task-list-container">
+          <div class="task-list">
+            <div class="task-list-title">清单</div>
+            <div class="task-list-item">
+              <i class="icon-circle "></i>
+              <p>看Electron文档</p>
+            </div>
+            <div class="task-list-item">
+              <i class="icon-circle "></i>
+              <p>吃饭睡觉吃饭睡觉吃饭睡觉吃饭睡觉</p>
+            </div>
+          </div>
+        </div>
+        <div class="task-add-container">
+          <i class="iconfont icon-plus"></i>
+          <input value="添加任务"/>
         </div>
       </div>
     </div>
@@ -86,6 +118,17 @@ body {
   margin: 0;
   height: 100%;
   display: flex;
+}
+
+p {
+  margin: 0;
+}
+
+input {
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: inherit;
 }
 
 #app {
@@ -204,7 +247,9 @@ body {
 }
 
 .main-container {
-  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
 
   .task-title {
     color: #fff;
@@ -214,6 +259,92 @@ body {
       font-size: 24px;
       padding: 0 12px;
     }
+  }
+}
+
+.task-timer {
+  background: rgba($color: #000, $alpha: .2);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  margin-top: 24px;
+  border-radius: 4px;
+
+  .task-timer-item {
+    text-align: center;
+
+    .task-timer-count {
+      color: #e85038;
+      font-size: 28px;
+    }
+
+    .task-timer-type {
+      color: #aaa;
+      font-size: 14px;
+    }
+  }
+}
+
+.task-list-container {
+  flex: 1 1 auto;
+  padding-top: 24px;
+  color: #ddd;
+
+  .task-list {
+    .task-list-title {
+      display: flex;
+      line-height: 32px;
+
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        background: #fff;
+        margin: 6px 12px 6px 0;
+      }
+    }
+
+    .task-list-item {
+      display: flex;
+      align-items: center;
+      background: rgba($color: #000, $alpha: .2);
+      padding: 16px;
+      border-radius: 4px;
+      margin-top: 6px;
+
+      .icon-circle {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        border: 2px solid #aaa;
+        margin-right: 12px;
+        flex: 0 0 auto;
+      }
+    }
+  }
+}
+
+.task-add-container {
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  background: rgba($color: #000, $alpha: .2);
+  padding: 16px;
+  border-radius: 4px;
+  margin-top: 12px;
+
+  .icon-plus {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    margin-right: 12px;
+    flex: 0 0 auto;
+  }
+
+  input {
+    color: #ddd;
   }
 }
 </style>
