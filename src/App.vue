@@ -86,6 +86,7 @@
 
 <script>
 const { ipcRenderer } = require('electron');
+import db from './db';
 
 export default {
   data() {
@@ -102,6 +103,11 @@ export default {
       console.log(title);
       this.curTaskTitle = title;
     }
+  },
+
+  created() {
+    let value = db.get('taskList').value();
+    console.log(value);
   }
 }
 </script>

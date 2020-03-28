@@ -1,5 +1,6 @@
 "use strict";
 
+import db from './db';
 import { app, protocol, BrowserWindow, Menu, ipcMain } from "electron";
 import {
   createProtocol,
@@ -115,3 +116,5 @@ ipcMain.on('toolEvent', (event, msg) => {
       break;
   }
 });
+
+
