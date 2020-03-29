@@ -63,21 +63,31 @@
           </div>
         </div>
         <div class="task-list-container">
-          <div class="task-list">
+          <ul class="task-list">
+            <li
+              v-for="task in taskList"
+              :key="task.created"
+              class="task-list-item"
+            >
+              <i class="iconfont icon-circle"></i>
+              <p class="task-name">{{ task.name }}</p>
+              <i class="iconfont icon-delete" v-on:click="onDeleteTask(task.id)"></i>
+            </li>
+          </ul>
+          <!-- <div class="task-list">
             <div class="task-list-title">清单</div>
-            <div class="task-list-item">
-              <i class="icon-circle "></i>
-              <p>看Electron文档</p>
-            </div>
             <div class="task-list-item">
               <i class="icon-circle "></i>
               <p>吃饭睡觉吃饭睡觉吃饭睡觉吃饭睡觉</p>
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="task-add-container">
           <i class="iconfont icon-plus"></i>
-          <input value="添加任务"/>
+          <input placeholder="添加任务"
+            v-model.trim="name"
+            v-on:keyup.enter="onAddTask"
+          />
         </div>
       </div>
     </div>
@@ -86,12 +96,25 @@
 
 <script>
 const { ipcRenderer } = require('electron');
-import db from './db';
+
+// task
+// {
+//   id: '',
+//   name: '',
+//   created: '',
+//   timers: 4,
+//   finished: 1,
+//   deadline: '',
+//   isFinish: false,
+//   belong: '',
+// }
 
 export default {
   data() {
     return {
       curTaskTitle: '',
+      taskList: [],
+      name: ''
     }
   },
 
@@ -102,18 +125,40 @@ export default {
     onTaskActivate(title) {
       console.log(title);
       this.curTaskTitle = title;
+    },
+    onAddTask() {
+      const date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+      this.$db.get('taskList').insert(Object.assign({
+        name: '',
+        created: '',
+        timers: 0,
+        finished: 0,
+        deadline: '',
+        isFinish: false,
+        belong: '',  
+      }, {
+        created: date,
+        name: this.name,
+      })).write();
+      this.name = '';
+      this.taskList = this.$db.get('taskList').value();
+    },
+    onDeleteTask(id) {
+      this.$db.get('taskList').removeById(id).write();
+      this.taskList = this.$db.get('taskList').value();
+      // console.log(this.taskList);
     }
   },
 
   created() {
-    let value = db.get('taskList').value();
-    console.log(value);
+    console.log(this.$db.get('taskList').value());
+    this.taskList = this.$db.get('taskList').value();
   }
 }
 </script>
 
 <style lang="scss">
-@import '//at.alicdn.com/t/font_1712277_w7o4lsqwkqr.css';
+@import '//at.alicdn.com/t/font_1712277_4m2sun57h6b.css';
 
 html {
   height: 100%;
@@ -126,15 +171,18 @@ body {
   display: flex;
 }
 
-p {
+p, ul, li {
   margin: 0;
+  padding: 0;
 }
 
 input {
+    display: block;
     padding: 0;
     border: none;
     background: none;
     font-size: inherit;
+    outline: none;
 }
 
 #app {
@@ -273,7 +321,7 @@ input {
   display: flex;
   justify-content: space-around;
   padding: 12px 0;
-  margin-top: 24px;
+  margin: 24px 0;
   border-radius: 4px;
 
   .task-timer-item {
@@ -293,8 +341,13 @@ input {
 
 .task-list-container {
   flex: 1 1 auto;
-  padding-top: 24px;
   color: #ddd;
+
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .task-list {
     .task-list-title {
@@ -316,7 +369,30 @@ input {
       background: rgba($color: #000, $alpha: .2);
       padding: 16px;
       border-radius: 4px;
-      margin-top: 6px;
+      margin-bottom: 6px;
+
+      &:hover {
+        background: rgba($color: #fff, $alpha: .05);
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .task-name {
+        flex: 1 1 auto;
+      }
+
+      .iconfont {
+        font-size: 20px;
+        color: #aaa;
+      }
+
+      .icon-delete {
+        &:hover {
+          color: #e85038;
+        }
+      }
 
       .icon-circle {
         display: inline-block;
@@ -339,7 +415,7 @@ input {
   background: rgba($color: #000, $alpha: .2);
   padding: 16px;
   border-radius: 4px;
-  margin-top: 12px;
+  margin-top: 24px;
 
   .icon-plus {
     width: 24px;
@@ -351,6 +427,7 @@ input {
 
   input {
     color: #ddd;
+    flex: 1 1 auto;
   }
 }
 </style>
