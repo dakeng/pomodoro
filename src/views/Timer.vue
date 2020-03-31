@@ -7,7 +7,7 @@
 <script>
 
 export default {
-  name: "Timer",git
+  name: "Timer",
 
 };
 </script>

@@ -33,10 +33,53 @@
           </div>
           <i class="line"></i>
         </div>
-        <div class="item-container task-list-title">
+        <div class="item-container task-list-title add-list">
           <i class="iconfont icon-plus"></i>
           <span>新建清单</span>
           <span></span>
+        </div>
+        <div class="timer-container">
+          <p class="timer-title">任务正在执行</p>
+          <div class="timer">
+            <div style="width: 100px;">
+              <svg viewBox="0 0 500 500">
+                <circle cx="250" cy="250" r="250" fill="#e85038" fill-opacity="0.4"></circle>
+                <circle cx="250" cy="250" r="220" fill="#e85038"></circle>
+                <text
+                    x="250" y="250"
+                    fill="#f6f7eb"
+                    font-size="80"
+                    font-family="Microsoft YaHei"
+                    text-anchor="middle"
+                    textLength="240"
+                    dominant-baseline="central">
+                    25:00
+                </text>
+                <symbol id="dot">
+                    <ellipse
+                        cx="4" cy="16"
+                        rx="4" ry="16"
+                        fill="#FEC86C"
+                        opacity="0.2">
+                    </ellipse>
+                </symbol>
+                <use xlink:href="#dot" x="246" y="50"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(30, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(60, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(90, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(120, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(150, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(180, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(210, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(240, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(270, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(300, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(330, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(360, 250, 250)"/>
+              </svg>
+            </div>
+            <i class="iconfont icon-play"></i>
+          </div>
         </div>
       </div>
       <div class="main-container">
@@ -71,6 +114,7 @@
             >
               <i class="iconfont icon-circle"></i>
               <p class="task-name">{{ task.name }}</p>
+              <i class="iconfont icon-play"></i>
               <i class="iconfont icon-delete" v-on:click="onDeleteTask(task.id)"></i>
             </li>
           </ul>
@@ -158,7 +202,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '//at.alicdn.com/t/font_1712277_4m2sun57h6b.css';
+@import '//at.alicdn.com/t/font_1712277_5l7p8pwoijh.css';
 
 html {
   height: 100%;
@@ -257,6 +301,8 @@ input {
 
 .side-container {
   color: #ccc;
+  display: flex;
+  flex-direction: column;
 
   .item-container {
     padding: 0 12px;
@@ -297,6 +343,32 @@ input {
     margin: 12px 24px;
     height: 1px;
     background: rgba($color: #fff, $alpha: .2);
+  }
+
+  .add-list {
+    flex: 1 1 auto;
+  }
+}
+
+.timer-container {
+  margin: 0 auto 24px;
+  text-align: center;
+
+  .timer-title {
+    line-height: 32px;
+    background: rgba($color: #e85038, $alpha: .2);
+    margin-bottom: 12px;
+  }
+
+  .timer {
+    display: flex;
+    align-items: center;
+
+    .iconfont {
+      font-size: 32px;
+      color: #e85038;
+      margin-left: 12px;
+    }
   }
 }
 
@@ -384,11 +456,16 @@ input {
       }
 
       .iconfont {
-        font-size: 20px;
+        font-size: 24px;
         color: #aaa;
+        margin-right: 12px;
+
+        &:last-child {
+          margin-right: 0;
+        }
       }
 
-      .icon-delete {
+      .icon-delete, .icon-play {
         &:hover {
           color: #e85038;
         }
