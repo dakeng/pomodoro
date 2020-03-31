@@ -33,15 +33,17 @@
           </div>
           <i class="line"></i>
         </div>
-        <div class="item-container task-list-title add-list">
-          <i class="iconfont icon-plus"></i>
-          <span>新建清单</span>
-          <span></span>
+        <div class="tak-container add-list">
+          <div class="item-container task-list-title">
+            <i class="iconfont icon-plus"></i>
+            <span>新建清单</span>
+            <span></span>
+          </div>
         </div>
         <div class="timer-container">
           <p class="timer-title">任务正在执行</p>
           <div class="timer">
-            <div style="width: 100px;">
+            <div class="clock">
               <svg viewBox="0 0 500 500">
                 <circle cx="250" cy="250" r="250" fill="#e85038" fill-opacity="0.4"></circle>
                 <circle cx="250" cy="250" r="220" fill="#e85038"></circle>
@@ -53,32 +55,46 @@
                     text-anchor="middle"
                     textLength="240"
                     dominant-baseline="central">
-                    25:00
+                    {{ timer && timer.timing ? timer.current : duration}}:00
                 </text>
                 <symbol id="dot">
                     <ellipse
                         cx="4" cy="16"
                         rx="4" ry="16"
                         fill="#FEC86C"
-                        opacity="0.2">
+                        opacity="1">
                     </ellipse>
                 </symbol>
-                <use xlink:href="#dot" x="246" y="50"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(30, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(60, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(90, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(120, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(150, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(180, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(210, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(240, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(270, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(300, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(330, 250, 250)"/>
-                <use xlink:href="#dot" x="246" y="50" transform="rotate(360, 250, 250)"/>
+                <use xlink:href="#dot" x="246" y="50" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(30, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(60, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(90, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(120, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(150, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(180, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(210, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(240, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(270, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(300, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(330, 250, 250)" opacity=".2"/>
+                <use xlink:href="#dot" x="246" y="50" transform="rotate(360, 250, 250)" opacity=".2"/>
               </svg>
             </div>
-            <i class="iconfont icon-play"></i>
+            <i
+              class="iconfont icon-timeout"
+              v-if="timer && timer.timing && !timer.paused"
+              v-on:click="onPause">
+            </i>
+            <i
+              class="iconfont icon-play"
+              v-else
+              v-on:click="onStart(currentId)">
+            </i>
+            <i
+              class="iconfont icon-stop"
+              v-show="timer && timer.timing"
+              v-on:click="onStop">
+            </i>
           </div>
         </div>
       </div>
@@ -114,17 +130,24 @@
             >
               <i class="iconfont icon-circle"></i>
               <p class="task-name">{{ task.name }}</p>
-              <i class="iconfont icon-play"></i>
+              <i
+                class="iconfont icon-timeout" 
+                v-if="timer && timer.timing && !timer.paused"
+                v-on:click="onPause">
+              </i>
+              <i
+                class="iconfont icon-play"
+                v-else
+                v-on:click="onStart(task.id)">
+              </i>
+              <i
+                v-show="timer && timer.timing"
+                class="iconfont icon-stop"
+                v-on:click="onStop">
+              </i>
               <i class="iconfont icon-delete" v-on:click="onDeleteTask(task.id)"></i>
             </li>
           </ul>
-          <!-- <div class="task-list">
-            <div class="task-list-title">清单</div>
-            <div class="task-list-item">
-              <i class="icon-circle "></i>
-              <p>吃饭睡觉吃饭睡觉吃饭睡觉吃饭睡觉</p>
-            </div>
-          </div> -->
         </div>
         <div class="task-add-container">
           <i class="iconfont icon-plus"></i>
@@ -139,6 +162,7 @@
 </template>
 
 <script>
+import Timer from './timer';
 const { ipcRenderer } = require('electron');
 
 // task
@@ -158,7 +182,10 @@ export default {
     return {
       curTaskTitle: '',
       taskList: [],
-      name: ''
+      name: '',
+      timer: null,
+      duration: 25,
+      currentId: null,
     }
   },
 
@@ -191,6 +218,25 @@ export default {
       this.$db.get('taskList').removeById(id).write();
       this.taskList = this.$db.get('taskList').value();
       // console.log(this.taskList);
+    },
+    onStart(id) {
+      // 切换计时器 id不一致stop
+      if (this.currentId !== id && this.timer) {
+        this.timer.stop();
+      }
+      this.currentId = id;
+      if (this.timer && this.timer.timing) {
+        this.timer.paused && this.timer.play();
+      } else {
+        this.timer = new Timer(this.duration, 1).start();
+      }
+      console.log(this.timer);
+    },
+    onPause() {
+      this.timer.pause();
+    },
+    onStop() {
+      this.timer && this.timer.stop();
     }
   },
 
@@ -202,7 +248,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '//at.alicdn.com/t/font_1712277_5l7p8pwoijh.css';
+@import '//at.alicdn.com/t/font_1712277_2o9gdja8gjb.css';
 
 html {
   height: 100%;
@@ -351,7 +397,7 @@ input {
 }
 
 .timer-container {
-  margin: 0 auto 24px;
+  padding: 24px;
   text-align: center;
 
   .timer-title {
@@ -368,6 +414,14 @@ input {
       font-size: 32px;
       color: #e85038;
       margin-left: 12px;
+
+      &:hover {
+        color: #b9402d;
+      }
+    }
+
+    .clock {
+      width: 120px;
     }
   }
 }
@@ -463,9 +517,7 @@ input {
         &:last-child {
           margin-right: 0;
         }
-      }
 
-      .icon-delete, .icon-play {
         &:hover {
           color: #e85038;
         }
