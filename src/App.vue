@@ -132,7 +132,7 @@
               <p class="task-name">{{ task.name }}</p>
               <i
                 class="iconfont icon-timeout" 
-                v-if="timer && timer.timing && !timer.paused"
+                v-if="currentId===task.id && timer && timer.timing && !timer.paused"
                 v-on:click="onPause">
               </i>
               <i
@@ -141,7 +141,7 @@
                 v-on:click="onStart(task.id)">
               </i>
               <i
-                v-show="timer && timer.timing"
+                v-show="currentId === task.id && timer && timer.timing"
                 class="iconfont icon-stop"
                 v-on:click="onStop">
               </i>
@@ -384,20 +384,13 @@ input {
     }
   }
 
-  .line {
-    display: block;
-    margin: 12px 24px;
-    height: 1px;
-    background: rgba($color: #fff, $alpha: .2);
-  }
-
   .add-list {
     flex: 1 1 auto;
   }
 }
 
 .timer-container {
-  padding: 24px;
+  padding: 12px 24px 24px;
   text-align: center;
 
   .timer-title {
@@ -558,5 +551,16 @@ input {
     color: #ddd;
     flex: 1 1 auto;
   }
+}
+
+.line {
+  display: block;
+  margin: 12px 24px;
+  height: 1px;
+  background: rgba($color: #fff, $alpha: .2);
+}
+
+.bg-red {
+  background: #e85038;
 }
 </style>
