@@ -5,10 +5,11 @@ export default class Timer {
     current = 0;
     duration = 0;
 
-    constructor(duration, rate) {
+    constructor(duration, rate, endCallback) {
         this.duration = duration;
         this.current = duration;
         this.rate = rate;
+        this.endCallback = endCallback;
         return this;
     }
 
@@ -45,6 +46,7 @@ export default class Timer {
     stop() {
         clearInterval(this.timerId);
         this.timing = false;
+        this.endCallback();
         return this;
     }
 }

@@ -37,7 +37,7 @@
           :timer="timer"
           :duration="duration"
           :currentId="currentId"
-          @on-start="onStart"
+          @on-start="onStart(currentId)"
           @on-pause="onPause"
           @on-stop="onStop"
         >
@@ -56,12 +56,26 @@
         <div class="task-list-container">
           <ul class="task-list">
             <li
-              v-for="task in taskList"
+              v-for="(task, index) in taskList"
               :key="task.created"
               class="task-list-item"
             >
               <i class="iconfont icon-circle"></i>
               <p class="task-name">{{ task.name }}</p>
+              <div class="task-time">
+                <span>{{ task.finished }} / {{ task.timers }}</span>
+                <div class="task-time-pop">
+                  <div class="task-timer-expected">
+                    <span>预计</span>：
+                    <div class="counter">
+                      <i class="iconfont icon-minus-circle" @click="onReduce(index)"></i>
+                      <input class="task-timers-input" v-model="task.timers"/>
+                      <i class="iconfont icon-plus-circle" @click="onAdd(index)"></i>
+                    </div>
+                  </div>
+                  <div><span>已完成</span>：{{ task.finished }}</div>
+                </div>
+              </div>
               <i
                 class="iconfont icon-timeout" 
                 v-if="currentId===task.id && timer && timer.timing && !timer.paused"
@@ -85,7 +99,7 @@
           <i class="iconfont icon-plus"></i>
           <input placeholder="添加任务"
             v-model.trim="name"
-            @keyup.enter="onAddTask"
+            @keyup.enter="onAddTask(name)"
           />
         </div>
       </div>
@@ -120,7 +134,7 @@ export default {
 
   data() {
     return {
-      curTaskTitle: '',
+      curTaskTitle: 'today',
       taskList: [],
       name: '',
       timer: null,
@@ -135,22 +149,24 @@ export default {
       this.curTaskTitle = title;
     },
 
-    onAddTask() {
+    onAddTask(name) {
       const date = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-      this.$db.get('taskList').insert(Object.assign({
+      const task = this.$db.get('taskList').insert(Object.assign({
         name: '',
         created: '',
         timers: 0,
         finished: 0,
         deadline: '',
         isFinish: false,
-        belong: '',  
+        belong: '',
       }, {
         created: date,
-        name: this.name,
+        name: name,
       })).write();
+      // console.log(task);
       this.name = '';
       this.taskList = this.$db.get('taskList').value();
+      return task;
     },
 
     onDeleteTask(id) {
@@ -161,14 +177,18 @@ export default {
 
     onStart(id) {
       // 切换计时器 id不一致stop
+      if (!id) {
+        const task = this.onAddTask('临时任务');
+        this.currentId = task.id;
+      }
       if (this.currentId !== id && this.timer) {
         this.timer.stop();
       }
-      this.currentId = id;
+      // this.currentId = id;
       if (this.timer && this.timer.timing) {
         this.timer.paused && this.timer.play();
       } else {
-        this.timer = new Timer(this.duration, 1).start();
+        this.timer = new Timer(this.duration, 1, this.endCallback).start();
       }
       console.log(this.timer);
     },
@@ -180,6 +200,27 @@ export default {
     onStop() {
       this.timer && this.timer.stop();
     },
+
+    onChangeVal (val) {
+      console.log(val);
+    },
+
+    onAdd (index) {
+      this.taskList[index].timers += 1;
+    },
+
+    onReduce(index) {
+      if (this.taskList[index].timers > 0) {
+        this.taskList[index].timers -= 1; 
+      }
+    },
+
+    endCallback() {
+      if (this.currentId) {
+        let val = this.$db.get('taskList').getById(this.currentId).value();
+        this.$db.get('taskList').getById(this.currentId).assign({finished: val.finished + 1}).value();
+      }
+    }
   },
 
   created() {
@@ -190,7 +231,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '//at.alicdn.com/t/font_1712277_2o9gdja8gjb.css';
+@import '//at.alicdn.com/t/font_1712277_waankaccu2.css';
 
 html {
   height: 100%;
@@ -374,6 +415,55 @@ input {
         border: 2px solid #aaa;
         margin-right: 12px;
         flex: 0 0 auto;
+      }
+
+      .task-time {
+        padding: 0 16px;
+        position: relative;
+        cursor: default;
+
+        &:hover .task-time-pop {
+          visibility: visible;
+        }
+
+        .task-time-pop {
+          &:hover {
+            visibility: visible;
+          }
+
+          visibility: hidden;
+          position: absolute;
+          width: 180px;
+          background: rgba(255,255,255,.1);
+          top: 0;
+          padding: 12px;
+          right: 100%;
+          border-radius: 4px;
+
+          span {
+            display: inline-block;
+            width: 52px;
+          }
+
+          .task-timer-expected {
+            display: flex;
+            margin-bottom: 12px;
+
+            .counter {
+              display: flex;
+
+              input {
+                width: 48px;
+                color: #fff;
+                text-align: center;
+              }
+
+              .iconfont {
+                margin: 0;
+              }
+            }
+          }
+        }
       }
     }
   }
